@@ -4,14 +4,32 @@
     <form nz-form [nzLayout]="'inline'" [formGroup]="validateForm" (ngSubmit)="submitForm(validateForm.value)">
       <nz-form-item>
         <nz-form-control nzErrorTip="Please input your todo">
-          <input formControlName="title" nz-input placeholder="Todo"/>
+          <input formControlName="title" nz-input placeholder="Todo" />
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
         <nz-form-control [nzOffset]="7" [nzSpan]="12">
-          <button nz-button nzType="primary" [disabled]="!validateForm.valid">Add</button>
+          <button nz-button nzType="primary" [disabled]="!validateForm.controls.title.value" (click)="toggleSubTodos()">
+            Add
+          </button>
         </nz-form-control>
       </nz-form-item>
+      <div style="width: 40%"><br></div>
+      <nz-form-item>
+        <nz-tag [nzMode]="'closeable'">Sub Todos:</nz-tag>
+        <div formArrayName="subTodos">
+          <div *ngFor="let control of subTodosControls.controls; let i = index" [formGroupName]="i">
+            <nz-form-control>
+              <input nz-input formControlName="title" placeholder="Sub Todo" />
+            </nz-form-control>
+            <i nz-icon nzType="minus-circle" class="dynamic-delete-button" (click)="removeSubTodo(i)"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <button nz-button nzType="dashed" (click)="addSubTodo()">Add Sub Todo</button>
+        </div>
+      </nz-form-item>
+
     </form>
   </div>
 </div>

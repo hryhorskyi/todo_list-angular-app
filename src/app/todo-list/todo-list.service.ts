@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Todo } from '../models/Todo';
 
-
 @Injectable()
 export class TodoListService {
   private resourceUrl = 'https://localhost:7163/api/Todos';
@@ -11,12 +10,12 @@ export class TodoListService {
   constructor(private http: HttpClient) { }
 
   create(todo: Todo): Observable<Todo> {
-    const copy = this.convert(todo);
+    const copy: Todo = { ...todo };
     return this.http.post<Todo>(this.resourceUrl, copy);
   }
 
   update(todo: Todo): Observable<Todo> {
-    const copy = this.convert(todo);
+    const copy: Todo = { ...todo };
     return this.http.put<Todo>(`${this.resourceUrl}/${copy.id}`, copy);
   }
 
@@ -31,9 +30,6 @@ export class TodoListService {
   delete(id: number | undefined): Observable<HttpResponse<any>> {
     return this.http.delete<any>(`${this.resourceUrl}/${id}`);
   }
-
-  private convert(todo: Todo): Todo {
-    const copy: Todo = Object.assign({}, todo);
-    return copy;
-  }
 }
+export { Todo };
+

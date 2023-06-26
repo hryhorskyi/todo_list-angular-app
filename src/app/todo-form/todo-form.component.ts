@@ -1,7 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { TodoListService } from '../todo-list/todo-list.service';
+import { Todo, TodoListService } from '../todo-list/todo-list.service';
+
+interface SubTodo {
+  title: string;
+  completed: boolean;
+}
 
 @Component({
   selector: 'app-todo-form',
@@ -12,30 +17,75 @@ export class TodoFormComponent implements OnInit {
   @Input() refresh!: () => void;
 
   validateForm!: FormGroup;
+  showSubTodos = false;
 
-  submitForm(value: { title: string, completed: boolean}): void {
-    for(const key in this.validateForm.controls){
-      if(this.validateForm.controls.hasOwnProperty(key)){
-        this.validateForm.controls[key].markAsDirty();
-        this.validateForm.controls[key].updateValueAndValidity();
-      }
-    }
-    value.completed = false;
-    this.todoListService.create(value)
-      .subscribe(() => {
-        this.nzMessageService.info('Todo created');
-        this.refresh();
-      });
-    this.validateForm.reset();
+  get subTodosControls(): FormArray {
+    return this.validateForm.get('subTodos') as FormArray;
   }
 
-  constructor(private fb: FormBuilder, private todoListService: TodoListService,
-    private nzMessageService: NzMessageService) { }
+  addSubTodo(): void {
+    this.subTodosControls.push(this.createSubTodoFormGroup());
+  }
+
+  removeSubTodo(index: number): void {
+    this.subTodosControls.removeAt(index);
+  }
+
+  toggleSubTodos(): void {
+    this.showSubTodos = !this.showSubTodos;
+    if (!this.showSubTodos) {
+      this.clearSubTodos();
+    }
+  }
+
+  submitForm(value: { title: string }): void {
+    if (this.validateForm.valid) {
+      const todo: Todo = {
+        title: value.title,
+        subTodos: this.getSubTodos()
+      };
+      this.todoListService.create(todo).subscribe(() => {
+        this.nzMessageService.info('Todo created');
+        this.refresh();
+        this.clearForm();
+      });
+    }
+  }
+
+  private createSubTodoFormGroup(): FormGroup {
+    return this.fb.group({
+      title: [null, [Validators.required]],
+      completed: false
+    });
+  }
+
+  private getSubTodos(): SubTodo[] {
+    return this.subTodosControls.value.map((subTodo: { title: string, completed: boolean }) => ({
+      title: subTodo.title,
+      completed: subTodo.completed
+    }));
+  }
+
+  private clearSubTodos(): void {
+    this.subTodosControls.clear();
+  }
+
+  private clearForm(): void {
+    this.validateForm.reset();
+    this.clearSubTodos();
+    this.showSubTodos = false;
+  }
+
+  constructor(
+    private fb: FormBuilder,
+    private todoListService: TodoListService,
+    private nzMessageService: NzMessageService
+  ) {}
 
   ngOnInit(): void {
     this.validateForm = this.fb.group({
-      title: [null, [Validators.required]]
-    })
+      title: [null, [Validators.required]],
+      subTodos: this.fb.array([])
+    });
   }
-
 }

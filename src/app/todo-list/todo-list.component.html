@@ -3,12 +3,12 @@
     <div class="inner-content">
       <div nz-row>
         <div nz-col nzSpan="14" nzOffset="5">
-          <h1>Codebrains Todos</h1>
-          <app-todo-form [refresh]="this.loadAll"></app-todo-form>
+          <h1>Todo List</h1>
+          <app-todo-form [refresh]="loadAll"></app-todo-form>
           <nz-list nzItemLayout="horizontal">
             <nz-list-item *ngFor="let todo of todos$ | async">
               <ng-container>
-                <nz-tag [nzColor]="'cyan'">{{todo.title}}</nz-tag>
+                <nz-tag [nzColor]="'cyan'">{{ todo.title }}</nz-tag>
                 <ul nz-list-item-actions>
                   <nz-list-item-action>
                     <nz-switch
@@ -16,8 +16,7 @@
                       (click)="changeStatus(todo)"
                       nz-tooltip
                       nzTooltipTitle="Change Todo Status"
-                      >
-                    </nz-switch>
+                    ></nz-switch>
                   </nz-list-item-action>
                   <nz-list-item-action>
                     <button
@@ -27,11 +26,15 @@
                       nz-popconfirm
                       nzPopconfirmTitle="Are you sure you want to delete"
                       nzPopconfirmPlacement="top"
-                      (nzOnConfirm)=deleteTodo(todo)
-                      (nzOnCancel)="cancel()">
+                      (nzOnConfirm)="deleteTodo(todo)"
+                      (nzOnCancel)="cancel()"
+                    >
                       X
                     </button>
                   </nz-list-item-action>
+                </ul>
+                <ul *ngIf="todo.subTodos" nz-list nzBordered>
+                  <li *ngFor="let subTodo of todo.subTodos" nz-list-item>{{ subTodo.title }}</li>
                 </ul>
               </ng-container>
             </nz-list-item>

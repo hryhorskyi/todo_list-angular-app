@@ -29,7 +29,7 @@ export class TodoListComponent implements OnInit {
     this.nzMessageService.info('Changed Status');
   }
 
-  deleteTodo(todo: Todo){
+  deleteTodo(todo: Todo) {
     this.todoListService.delete(todo.id)
       .subscribe(() => {
         this.todos$ = this.todoListService.findAll();
@@ -42,7 +42,7 @@ export class TodoListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.todos$ = this.todoListService.findAll();
+    this.loadAll();
   }
 
 }
